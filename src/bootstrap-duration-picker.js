@@ -1,14 +1,32 @@
 (function($) {
   const langs = {
     en: {
+      year: 'year',
+      month: 'month',
       day: 'day',
       hour: 'hour',
       minute: 'minute',
       second: 'second',
+      months: 'months',
+      years: 'years',
       days: 'days',
       hours: 'hours',
       minutes: 'minutes',
       seconds: 'seconds',
+    },
+    tr: {
+      year: 'yıl',
+      month: 'ay',
+      day: 'gün',
+      hour: 'saat',
+      minute: 'dakika',
+      second: 'saniye',
+      years: 'yıl',
+      months: 'ay',
+      days: 'gün',
+      hours: 'saat',
+      minutes: 'dakika',
+      seconds: 'saniye',
     },
     fr: {
       day: 'jour',
@@ -26,7 +44,11 @@
     const defaults = {
       lang: 'en',
       showSeconds: false,
+      showMinutes: true,
+	  showHours: true,
       showDays: true,
+	  showMonths: false,
+	  showYears: false
     };
     const settings = $.extend({}, defaults, options);
 
@@ -75,16 +97,18 @@
       const mainInputReplacer = $('<div>', {
         class: 'bdp-input',
         html: [
-          buildDisplayBlock('days', !settings.showDays),
-          buildDisplayBlock('hours', false, settings.showDays ? 23 : 99999),
-          buildDisplayBlock('minutes', false, 59),
+          buildDisplayBlock('years', !settings.showYears),
+          buildDisplayBlock('months', !settings.showMonths,settings.showYears ? 12 : 99999),
+          buildDisplayBlock('days', !settings.showDays,settings.showMonths ? 31 : 99999),
+          buildDisplayBlock('hours', !settings.showHours, settings.showDays ? 23 : 99999),
+          buildDisplayBlock('minutes', !settings.showMinutes, 59),
           buildDisplayBlock('seconds', !settings.showSeconds, 59),
         ],
       });
 
       mainInput.after(mainInputReplacer).hide().data('bdp', '1');
 
-      let days = 0, hours = 0, minutes = 0, seconds = 0;
+      let years = 0, months = 0, days = 0, hours = 0, minutes = 0, seconds = 0;
 
       function updateWordLabel(value, label) {
         const text = value === 1 ? label.substring(0, label.length - 1) : label;
@@ -95,15 +119,21 @@
         const total = seconds +
           minutes * 60 +
           hours * 60 * 60 +
-          days * 24 * 60 * 60;
+          days * 24 * 60 * 60 +
+		  months * 30 * 24 * 60 * 60 +
+		  years * 365 * 24 * 60 * 60;
         mainInput.val(total);
         mainInput.change();
 
+        updateWordLabel(years, 'years');
+        updateWordLabel(months, 'months');
         updateWordLabel(days, 'days');
         updateWordLabel(hours, 'hours');
         updateWordLabel(minutes, 'minutes');
         updateWordLabel(seconds, 'seconds');
 
+        inputs.years.val(years);
+        inputs.months.val(months);
         inputs.days.val(days);
         inputs.hours.val(hours);
         inputs.minutes.val(minutes);
@@ -135,7 +165,10 @@
       }
 
       function durationPickerChanged() {
-        days = parseInt(inputs.days.val(), 10) || 0;
+        years = parseInt(inputs.years.val(), 10) || 0;
+        months = parseInt(inputs.months.val(), 10) || 0;
+        
+		days = parseInt(inputs.days.val(), 10) || 0;
         hours = parseInt(inputs.hours.val(), 10) || 0;
         minutes = parseInt(inputs.minutes.val(), 10) || 0;
         seconds = parseInt(inputs.seconds.val(), 10) || 0;
