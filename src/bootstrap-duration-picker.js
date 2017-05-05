@@ -142,6 +142,9 @@
         if (typeof settings.onChanged === 'function') {
           settings.onChanged(mainInput.val());
         }
+        if (typeof settings.onChangedVerbose === 'function') {
+          settings.onChangedVerbose(years,months,days,hours,minutes,seconds);
+        }
       }
 
       function init() {
